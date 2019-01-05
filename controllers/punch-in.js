@@ -18,6 +18,7 @@ module.exports = function(app) {
         //factory_name: req.body.factoryName,
         date: date,
         punch_in: punchIn,
+        is_break_time: false
       })
         .then(result => {
           console.log("Attendence info!!");

@@ -32,6 +32,9 @@ const Attendance = db.define('attendance', {
     },
     total_time: {
         type: Sequelize.STRING,
+    },
+    is_break_time: {
+        type: Sequelize.BOOLEAN,
     }
   });
 
