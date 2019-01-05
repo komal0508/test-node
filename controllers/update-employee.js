@@ -18,6 +18,9 @@ module.exports = function(app) {
         contact: req.body.contact,
         factory_name: req.body.factoryName,
         salary: req.body.salary,
+        category: req.body.category,
+        shift_time: req.body.shiftTime,
+        salary_value: req.body.salaryValue,
       }, {
           where: {
           emp_id: req.body.empId,

@@ -21,7 +21,7 @@ module.exports = function(app) {
            });
            res.end();
        } else {
-    Employee.create({
+        Manager.create({
     email: req.body.email,
      password: req.body.password,
      factory_name: req.body.factoryName,

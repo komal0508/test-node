@@ -6,7 +6,11 @@ module.exports = function(app) {
   * Post API which update the employee details.
   */
  app.post("/api/get-all-employee-info", (req, res, next) => {
-    Employee.findAll({})
+    Employee.findAll({
+        where: {
+            factory_name: req.body.factoryName,
+        }
+    })
         .then(users => {
           console.log("Employee Info!!!", users);
           console.log('****************');

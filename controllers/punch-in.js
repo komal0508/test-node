@@ -15,7 +15,7 @@ module.exports = function(app) {
     Attendance.create({
        emp_id: req.body.empId,
        // name: req.body.name,
-        //factory_name: req.body.factoryName,
+        factory_name: req.body.factoryName,
         date: date,
         punch_in: punchIn,
         is_break_time: false

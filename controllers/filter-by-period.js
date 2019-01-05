@@ -7,14 +7,17 @@ module.exports = function(app) {
   */
  app.post("/api/get-attendance-by-period-filter", (req, res, next) => {
     Attendance.findAll({
-            where: {
-               // date: req.body.date,
-                //factory_name: req.body.factoryName,
-                date: {
-                    [Op.between]: [req.body.fromDate, req.body.toDate]
-                }
-                
-            },
+        where: {
+            // date: req.body.date,
+             //factory_name: req.body.factoryName,
+             [Op.and]: [{ 
+                 date: {
+                 [Op.between]: [req.body.fromDate, req.body.toDate]
+             }
+         }, {factory_name: req.body.factoryName}]
+            
+             
+         },
             attributes: ['emp_id', 'date', 'punch_in', 'punch_out', 'total_time' ],
     })
         .then(users => {

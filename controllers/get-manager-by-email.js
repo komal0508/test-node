@@ -10,7 +10,8 @@ module.exports = function(app) {
           where: {
           //  [Op.and]: [{name: req.body.name}, {factory_name: req.body.factoryName}]
           email: req.body.email,
-      }
+      }, 
+      attributes: ['email', 'password', 'factory_name'],
    })
         .then(users => {
           console.log("Manager Info!!!", users);
