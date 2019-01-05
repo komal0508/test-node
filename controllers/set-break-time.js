@@ -7,7 +7,7 @@ module.exports = function(app) {
   * Post API which update the employee details.
   */
  app.post("/api/break-time", (req, res, next) => {
-
+   const punchOut = moment(new Date()).format("YYYY-MM-DD hh:mm:ss");
    Attendance.findOne({
       where: {
       emp_id: req.body.empId,
