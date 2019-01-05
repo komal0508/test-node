@@ -62,13 +62,38 @@ module.exports = function(app) {
               console.log('error !!!', error);
            })
         } else {
-           console.log('Punch out already submitted!!');
-           res.statusCode = 203;
-           res.send({
-              status: 203,
-              message: 'Punch out already submitted!!!',
-           }); 
-           res.end();
+         Attendance.update({
+            time_mill: millisecondsDiff,
+            total_time: totalTimeInHoursAndMinutes,
+            is_break_time: true,
+         }, {
+            where: {
+               punch_in: resp.punch_in,
+            }
+         })
+         .then((result) => {
+            console.log('result is', result);
+            if (result && result[0] && result.length > 0) {
+              console.log("Attendance Punch out submitted successfully!!!");
+              res.statusCode = 200;
+              res.send({
+              status: 200,
+              message: 'Attendance Punch out submitted successfully!',
+       });
+        res.end();
+        } else {
+              console.log('Attendence Not updated!!');
+            res.statusCode = 201;
+            res.send({
+                status: 201,
+                message: 'Attendence punch out time not submitted!!!',
+            })
+            res.end();
+          }
+         })
+         .catch((error) => {
+            console.log('error !!!', error);
+         })
         }
       } else {
          console.log('Employee punch out submitted before punch in!!');
