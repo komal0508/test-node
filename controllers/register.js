@@ -6,6 +6,7 @@ module.exports = function(app) {
   * Post API which register employee details.
   */
  app.post("/api/register", (req, res, next) => {
+     console.log('*****dfkdkfd', req.body)
    Employee.findOne({
        where: {
        // [Op.and]: [{name: req.body.name}, {factory_name: req.body.factoryName}]
@@ -21,6 +22,7 @@ module.exports = function(app) {
            });
            res.end();
        } else {
+        console.log('*****dfkdkfd1', req)
     Employee.create({
      emp_id: req.body.empId,
      first_name: req.body.firstName,
