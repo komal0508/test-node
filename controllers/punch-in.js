@@ -7,8 +7,8 @@ module.exports = function(app) {
   * Post API which register employee details.
   */
  app.post("/api/punch-in", (req, res, next) => { 
-    //const date = moment(new Date()).format("YYYY-MM-DD");
-  const date = moment().add(10, 'month').calendar();
+  const date = moment(new Date()).format("YYYY-MM-DD");
+  //const date = moment().add(10, 'month').calendar();
     console.log('Date !!!!', date);
      const punchIn = moment(new Date()).format("YYYY-MM-DD hh:mm:ss");
 

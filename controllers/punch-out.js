@@ -22,7 +22,7 @@ module.exports = function(app) {
              console.log('***************');
              const punchInDate = moment(resp.punch_in);
              const punchOutDate = moment(punchOut);
-             const millisecondsDiff = punchOutDate.diff(punchInDate)
+             const millisecondsDiff = punchOutDate.diff(punchInDate);
              console.log('millseconds', millisecondsDiff);
              const totalTimeInHoursAndMinutes = moment.utc(millisecondsDiff).format('HH:mm');
              console.log('******totalTimeInHoursAndMinutes', totalTimeInHoursAndMinutes)
