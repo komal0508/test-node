@@ -9,7 +9,7 @@ module.exports = function(app) {
     Attendance.findAll({
         where: {
             emp_id: req.body.empId,
-           // [Op.and]: [{name: req.body.name}, {factory_name: req.body.factoryName}]
+        //[Op.and]: [{name: req.body.name}, {factory_name: req.body.factoryName}]
         },
         attributes: ['emp_id', 'date', 'punch_in', 'punch_out', 'total_time' ],
     })

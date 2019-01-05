@@ -9,7 +9,7 @@ module.exports = function(app) {
   * Post API which update the employee details.
   */
  app.post("/api/get-attendance-by-month-filter", (req, res, next) => {
-    sequelize.query(`SELECT emp_id, date, punch_in, punch_out, total_time FROM public.attendances where EXTRACT(MONTH FROM date) = ${req.body.month} and EXTRACT(YEAR FROM date) = ${req.body.year}`, { type: sequelize.QueryTypes.SELECT })
+    sequelize.query(`SELECT emp_id, date, punch_in, punch_out, total_time FROM public.attendances where EXTRACT(MONTH FROM date) = ${req.body.month} and EXTRACT(YEAR FROM date) = ${req.body.year} and factory_name = ${req.body.factoryName}`, { type: sequelize.QueryTypes.SELECT })
     .then((response) => {
         console.log('Response is !', response);
         if(response && response.length && response.length > 0) {

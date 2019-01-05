@@ -8,9 +8,9 @@ module.exports = function(app) {
  app.post("/api/get-attendance-by-date-filter", (req, res, next) => {
     Attendance.findAll({
             where: {
-                date: req.body.date,
+              //  date: req.body.date,
                 //factory_name: req.body.factoryName,
-                //[Op.and]: [{name: req.body.name}, {factory_name: req.body.factoryName}]
+                [Op.and]: [{date: req.body.date,}, {factory_name: req.body.factoryName}]
             },
             attributes: ['emp_id', 'date', 'punch_in', 'punch_out', 'total_time' ],
     })
