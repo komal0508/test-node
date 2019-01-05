@@ -34,7 +34,7 @@ const Employee = db.define('employees', {
      type: Sequelize.STRING,
     },
     shift_time: {
-        type: Sequelize.STRING,
+        type: Sequelize.BIGINT,
     },
     salary_value: {
         type: Sequelize.STRING,

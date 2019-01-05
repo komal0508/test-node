@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 fs.readdirSync(`${__dirname}/controllers`).forEach((file) => {
   if (file.substr(-3) === '.js') {
     const pathToController = `${__dirname}/controllers/${file}`;
-   // console.log(pathToController, 'pathToController');
+   //console.log(pathToController, 'pathToController');
     router = require(pathToController)(app);
     app.use(pathToController, rMyRoute);
   }

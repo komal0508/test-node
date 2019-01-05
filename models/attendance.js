@@ -28,7 +28,7 @@ const Attendance = db.define('attendance', {
         type: Sequelize.DATE,
     },
     time_mill: {
-        type: Sequelize.STRING,
+        type: Sequelize.BIGINT,
     },
     total_time: {
         type: Sequelize.STRING,
