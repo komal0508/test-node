@@ -14,13 +14,13 @@ module.exports = function(app) {
         email: req.body.email,
     }
  })
-      .then(users => {
-        if (users) {
+      .then(manager => {
+          console.log('**********users', manager)
+        if (manager) {
             OfficeWork.findAll({
                 where: {
-                    factory_name: users.factory_name,
-                    isAccepted: null,
-                    //[Op.and]: [{name: req.body.name}, {factory_name: req.body.factoryName}]
+                    factory_name: manager.factory_name,
+                    is_accepted: null,
                 }
             })
                 .then(users => {

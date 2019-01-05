@@ -16,12 +16,12 @@ module.exports = function(app) {
     }
  })
       .then(works => {
-        console.log("Employee Info!!!", users);
+        console.log("Employee Info!!!", works);
         if (works) {
 
             OfficeWork.update({
-                is_accepted: req.body.isAccepted,
-                comments: req.body.comments,
+                is_accepted: req.body.is_accepted,
+                comment: req.body.comments,
                }, {
                   where: {
                      id: req.body.id,
@@ -30,19 +30,19 @@ module.exports = function(app) {
                .then((result) => {
                   console.log('result is', result);
                   if (result && result[0] && result.length > 0) {
-                    console.log("Attendance Break time updated successfully!!!");
+                    console.log("Attendance office work status updated successfully!!!");
                     res.statusCode = 200;
                     res.send({
                     status: 200,
-                    message: 'Attendance Break time updated successfully!',
+                    message: 'Attendance office work status updated successfully!',
              });
               res.end();
               } else {
-                    console.log('Attendence Not updated!!');
+                    console.log('office work status Not updated!!');
                   res.statusCode = 201;
                   res.send({
                       status: 201,
-                      message: 'Attendence break time not updated!!!',
+                      message: 'office work status break time not updated!!!',
                   })
                   res.end();
                 }
@@ -50,28 +50,12 @@ module.exports = function(app) {
                .catch((error) => {
                   console.log('error !!!', error);
                })
-
-
-
-
-
-
-
-
-            console.log("Employee Information fetched!!!");
-           res.statusCode = 200;
-           res.send({
-               status: 200,
-               message: 'Employee Information fetched',
-               data: users,
-         });
-         res.end();
         } else {
-            console.log('Employee ID doesn\'t exist!');
+            console.log('entry  doesn\'t exist!');
           res.statusCode = 201;
           res.send({
               status: 201,
-              message: 'Employee ID doesn\'t exist!',
+              message: 'entry doesn\'t exist!',
           })
           res.end();
         }
