@@ -58,6 +58,7 @@ module.exports = function(app) {
                             overtime_salary: overtime_salary,
                             salary: result[i].salary,
                             no_of_days: days,
+                            oneHourSalary: oneHourSalary,
                             overtime: overtime,
                            }
                            salaryArray.push(object);
@@ -66,14 +67,67 @@ module.exports = function(app) {
                   
                   
                   }
-                  console.log('Salary array', salaryArray);
-                     res.statusCode = 200;
+
+
+
+                  sequelize.query(`SELECT emp_id, SUM(time_mill) as office_work_milliseconds FROM public.office_works 
+                  WHERE EXTRACT(month FROM date) = ${req.body.month} and EXTRACT(YEAR FROM date) = ${req.body.year} GROUP BY emp_id HAVING emp_id IN
+                  (SELECT emp_id FROM public.employees where factory_name = '${req.body.factoryName}')`, { type: sequelize.QueryTypes.SELECT })
+    .then((response) => {
+        console.log('Response is !', response);
+        if(response) {
+            let total_millisecond_for_salary = 0;
+            let total_salary = 0;
+            let salaryObject = {};
+            let finalSalaryArray = [];
+            for(let i = 0 ; i < response.length; i++) {
+                for(let j = 0; j < salaryArray.length; j++) {
+                    if(response[i].emp_id === salaryArray[i].length) {
+                        total_millisecond_for_salary = salaryArray[j].total_milliseconds + response[i].office_work_milliseconds;
+                        total_salary = total_millisecond_for_salary * salaryArray[j].oneHourSalary;
+                        salaryObject = {
+                            emp_id: salaryArray[j].emp_id,
+                            totalMilliseconds: salaryArray[j].total_milliseconds,
+                            overtimeSalary: salaryArray[j].overtime_salary,
+                            salary: salaryArray[j].salary,
+                            noOfDays: salaryArray[j].days,
+                            oneHourSalary: salaryArray[j].oneHourSalary,
+                            overTime: salaryArray[j].overtime,
+                            totalSalaryMonth: total_salary,
+                        }
+                        finalSalaryArray.push(salaryObject);
+                    }
+                }
+            }
+
+  console.log('fina;SalaryArray', finalSalaryArray);
+            res.statusCode = 200;
                      res.send({
                          status: 200,
-                         message: 'Employee total time calculated!',
-                         data: salaryArray,
+                         message: 'Month wise information fetched!!!',
+                         data: finalSalaryArray,
                    });
                    res.end();
+        } else {
+            res.statusCode = 201;
+            res.send({
+                status: 201,
+                message: 'Month wise information not fetched!!!',
+                data: response,
+          });
+          res.end();
+        }
+    })
+    .catch((err) => {
+        console.log('err', err);
+        res.statusCode = 500;
+               res.send({
+                   status: 500,
+                   message: 'Oops!, Something went wrong with api'
+               });
+               res.end();
+    })
+
                 }
             })
             .catch((error) => {
