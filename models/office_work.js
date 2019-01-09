@@ -10,7 +10,7 @@ const OfficeWork = db.define('office_work', {
     type: Sequelize.INTEGER,
     },
     attendence_id: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
     },
     purpose: {
         type: Sequelize.STRING,
