@@ -8,7 +8,6 @@ module.exports = function(app) {
  app.post("/api/get-employee-by-id", (req, res, next) => {
     Employee.findOne({
           where: {
-          //  [Op.and]: [{name: req.body.name}, {factory_name: req.body.factoryName}]
           emp_id: req.body.empId,
       }
    })

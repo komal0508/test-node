@@ -8,13 +8,12 @@ module.exports = function(app) {
  app.post("/api/edit-employee-info", (req, res, next) => {
      const length = req.body.contact.length;
      const contact = req.body.contact;
-     const empId = contact.substring(length - 4, length) + req.body.firstName;
+     const empId = req.body.firstName + contact.substring(length - 4, length);
      console.log('Emp id', empId);
     Employee.update({
         emp_id: empId,
         first_name: req.body.firstName,
         last_name: req.body.lastName,
-       // name: req.body.newName,
         contact: req.body.contact,
         factory_name: req.body.factoryName,
         salary: req.body.salary,

@@ -64,7 +64,7 @@ module.exports = function(app) {
                res.statusCode = 203;
                res.send({
                   status: 203,
-                  message: 'Punch out already submitted!!!',
+                  message: 'Employee punch out submitted before punch in',
                }); 
                res.end();
             }

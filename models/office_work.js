@@ -9,29 +9,11 @@ const OfficeWork = db.define('office_work', {
     primaryKey: true,
     type: Sequelize.INTEGER,
     },
-    emp_id: {
+    attendence_id: {
         type: Sequelize.STRING,
-    },
-    name: {
-        type: Sequelize.STRING,
-    },
-    factory_name: {
-        type: Sequelize.STRING,
-    },
-    date: {
-      type: Sequelize.DATEONLY,
-    },
-    punch_in: {
-        type: Sequelize.DATE,
     },
     purpose: {
         type: Sequelize.STRING,
-    },
-    punch_out: {
-        type: Sequelize.DATE,
-    },
-    time_mill: {
-        type: Sequelize.BIGINT,
     },
     comment: {
         type: Sequelize.STRING,

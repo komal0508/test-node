@@ -9,6 +9,12 @@ const Managers = db.define('managers', {
     primaryKey: true,
     type: Sequelize.INTEGER,
     },
+    first_name: {
+        type: Sequelize.STRING,
+    },
+    last_name: {
+        type: Sequelize.STRING,
+    },
     email: {
         type: Sequelize.STRING,
     },
@@ -17,7 +23,22 @@ const Managers = db.define('managers', {
     },
     factory_name: {
         type: Sequelize.STRING,
-    }
+    },
+    contact: {
+        type: Sequelize.STRING,
+    },
+    email_token: {
+        type: Sequelize.STRING, // Type of column
+      },
+    token_date: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+      },
+      isVerified: {
+        type: Sequelize.BOOLEAN,
+      },
+     
   });
 
   module.exports = Managers;

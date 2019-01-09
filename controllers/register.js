@@ -6,11 +6,14 @@ module.exports = function(app) {
   * Post API which register employee details.
   */
  app.post("/api/register", (req, res, next) => {
-     console.log('*****dfkdkfd', req.body)
+     const length = req.body.contact.length;
+     const contact = req.body.contact;
+     const empId = req.body.firstName + contact.substring(length - 4, length);
+     console.log('Emp id', empId);
    Employee.findOne({
        where: {
        // [Op.and]: [{name: req.body.name}, {factory_name: req.body.factoryName}]
-        emp_id: req.body.empId,
+        emp_id: empId,
        }
    }).then((user) => {
        if (user) {
@@ -24,10 +27,9 @@ module.exports = function(app) {
        } else {
         console.log('*****dfkdkfd1', req)
     Employee.create({
-     emp_id: req.body.empId,
+     emp_id: empId,
      first_name: req.body.firstName,
      last_name: req.body.lastName,
-    // name: req.body.name,
      contact: req.body.contact,
      factory_name: req.body.factoryName,
      salary: req.body.salary,

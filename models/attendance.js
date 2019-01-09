@@ -35,6 +35,9 @@ const Attendance = db.define('attendance', {
     },
     is_break_time: {
         type: Sequelize.BOOLEAN,
+    },
+    is_office_work: {
+        type: Sequelize.BOOLEAN,
     }
   });
 

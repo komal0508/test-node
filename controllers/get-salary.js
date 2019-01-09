@@ -21,7 +21,7 @@ module.exports = function(app) {
                 console.log('moment(response[i].total_milliseconds)',parseInt(response[i].total_milliseconds));
                 obj = {
                     emp_id: response[i].emp_id,
-                    total_milliseconds: response[i].total_milliseconds,
+                    total_milliseconds: response[i].total_milliseconds, 
                     total_time: moment.utc(parseInt(response[i].total_milliseconds)).format('HH:mm'),
 
                 }
@@ -30,12 +30,15 @@ module.exports = function(app) {
             }
             console.log('****************');
             
-            const date =  moment().subtract(1, 'month').calendar();
+            const date =  moment().subtract(1, 'days').calendar();
             console.log('no of days', date);
             const days = parseInt(moment(date).daysInMonth());
-            console.log('days ', days);
+            const secondsInDay = days * 86400; //Convert days into seconds
+            console.log('days ', days, secondsInDay);
             console.log('empArr', empArr);
-            sequelize.query(`Select emp_id, salary, category, shift_time, salary_value,  ${days}* shift_time as total_time_of_month From public.employees where factory_name = '${req.body.factoryName}'`, { type: sequelize.QueryTypes.SELECT })
+
+            //Shift_time store in seconds.. Suppose shift time is 8 hours then shift_time is 8 * 3600 = 28800...
+            sequelize.query(`Select emp_id, salary, category, shift_time, salary_value,  ${secondsInDay}* shift_time as total_time_of_month From public.employees where factory_name = '${req.body.factoryName}'`, { type: sequelize.QueryTypes.SELECT })
             .then((result) => {
                 console.log('result!!!!!', result);
                 if (result && result.length && result.length > 0) {
@@ -48,20 +51,28 @@ module.exports = function(app) {
                   for (let i = 0; i < result.length; i++) {
                    for(let j = 0; j < empArr.length; j++) {
                     if(empArr[j].emp_id === result[i].emp_id) {
-                        overtime = result[i].total_time_of_month - empArr[j].total_milliseconds;
-                        oneHourSalary = (result[i].salary / days) / result[i].shift_time;
-                        overtime_salary = overtime * result[i].salary_value * oneHourSalary;
+                        overtime = (empArr[j].total_milliseconds - result[i].total_time_of_month) / 60; //Convert milliseconds into seconds
+                        if (overtime > 0) {
+                            oneHourSalary = (result[i].salary / secondsInDay) / result[i].shift_time; // One hour salary acc to seconds..
+                            if(result[i].category === 'random') {
+                                overtime_salary = overtime * result[i].salary_value * oneHourSalary; 
+                            } else {
+                                overtime_salary = overtime * result[i].salary_value; 
+                            }
+                         //Salary_value means how many times
                         total_milliseconds = empArr[j].total_milliseconds;
                         object = {
                             emp_id: result[i].emp_id,
                             total_milliseconds: total_milliseconds,
                             overtime_salary: overtime_salary,
                             salary: result[i].salary,
-                            no_of_days: days,
+                            //no_of_days: days,
+                            no_of_days: secondsInDay,
                             oneHourSalary: oneHourSalary,
                             overtime: overtime,
                            }
                            salaryArray.push(object);
+                        }
                     }
                    }
                   
@@ -80,7 +91,7 @@ module.exports = function(app) {
             for(let i = 0 ; i < resp.length; i++) {
                 for(let j = 0; j < salaryArray.length; j++) {
                     if(resp[i].emp_id === salaryArray[j].emp_id) {
-                        total_millisecond_for_salary = salaryArray[j].total_milliseconds + resp[i].office_work_milliseconds;
+                        total_millisecond_for_salary = (salaryArray[j].total_milliseconds + resp[i].office_work_milliseconds) / 60;  //Convert milliseconds into seconds
                         total_salary = total_millisecond_for_salary * salaryArray[j].oneHourSalary;
                         salaryObject = {
                             emp_id: salaryArray[j].emp_id,

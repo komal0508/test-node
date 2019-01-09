@@ -1,5 +1,6 @@
 const Manager = require("../models/manager");
 const Sequelize = require("sequelize");
+const bcrypt = require('bcrypt-nodejs');
 const Op = Sequelize.Op;
 module.exports = function(app) {
  /**
@@ -8,10 +9,10 @@ module.exports = function(app) {
  app.post("/api/register-manager", (req, res, next) => {
    Manager.findOne({
        where: {
-       // [Op.and]: [{name: req.body.name}, {factory_name: req.body.factoryName}]
         email: req.body.email,
        }
    }).then((user) => {
+       console.log('user', user);
        if (user) {
         console.log('Manager email already exist');
            res.statusCode = 201;
@@ -21,13 +22,23 @@ module.exports = function(app) {
            });
            res.end();
        } else {
+        const passwordHash = bcrypt.hashSync(req.body.password);
+        let emailToken = bcrypt.hashSync(req.body.email);
+        emailToken = `?${emailToken}`;
+        const tokenDate = new Date();
         Manager.create({
-    email: req.body.email,
-     password: req.body.password,
-     factory_name: req.body.factoryName,
+            first_name: req.body.firstName,
+            last_name: req.body.lastName,
+            email: req.body.email,
+            password: passwordHash,
+            factory_name: req.body.factoryName,
+            contact: req.body.contact,
+            email_token: emailToken,
+            token_date: tokenDate,
+            isVerified: false,
    })
      .then(users => {
-       console.log("User registered!!!");
+       console.log("Manager registered!!!");
        if (users) {
           res.statusCode = 200;
           res.send({
