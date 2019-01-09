@@ -256,55 +256,88 @@ module.exports = function(app) {
     order: [['createdAt', 'DESC']],
    })
    .then((data) => {
-     if(data && data.is_break_time) {
+     if(data && data.punch_out === null){
+      Attendance.create({
+        emp_id: req.body.empId,
+        // name: req.body.name,
+         factory_name: req.body.factoryName,
+         date: date,
+         punch_in: punchIn,
+         is_office_work: req.body.isOfficeWork,
+         is_break_time: false
+       })
+         .then(result => {
+           console.log("Attendence info!!");
+           if (result) {
+              res.statusCode = 200;
+              res.send({
+                  status: 200,
+                  message: 'Employee punch In submitted successfully!',
+            });
+            res.end();
+           }
+         })
+         .catch(err => {
+            console.log(err);
+           res.statusCode = 501;
+           res.send({
+               status: 501,
+               message: 'Oops!, Something went wrong with api',
+           })
+           res.end();
+         });
+     }
+     else if(data && data.is_break_time) {
       const previousPunchOutMili = moment(data.punch_out).valueOf() + 3600000;
                   const newPunchInMili = moment(punchIn).valueOf();
                   const difference = previousPunchOutMili - newPunchInMili;
+                  const finalPunchIn = punchIn;
                   console.log( '*********attendmili', previousPunchOutMili, newPunchInMili, difference)
                   if(difference > 0){
       
                     const newPunchInWithDiff = newPunchInMili + difference;
-                    const finalPunchIn = moment(newPunchInWithDiff).format("YYYY-MM-DD hh:mm:ss");
+                   // const finalPunchIn = moment(newPunchInWithDiff).format("YYYY-MM-DD hh:mm:ss");
+                   finalPunchIn = moment(newPunchInWithDiff).format("YYYY-MM-DD hh:mm:ss");
                     console.log(finalPunchIn, '*******finalPunchIn')
       
-                    Attendance.create({
-                      emp_id: req.body.empId,
-                      // name: req.body.name,
-                       factory_name: req.body.factoryName,
-                       date: date,
-                       is_office_work: req.body.isOfficeWork,
-                       punch_in: finalPunchIn,
-                       is_break_time: false
-                     })
-                       .then(result => {
-                         console.log("Attendence info!!");
-                         if (result) {
-                            res.statusCode = 200;
-                            res.send({
-                                status: 200,
-                                message: 'Employee punch In submitted successfully!',
-                          });
-                          res.end();
-                         }
-                       })
-                       .catch(err => {
-                          console.log(err);
-                        //  res.statusCode = 501;
-                        //  res.send({
-                        //      status: 501,
-                        //      message: 'Oops!, Something went wrong with api',
-                        //  })
-                        //  res.end();
-                       });
-     } else {
+                    // Attendance.create({
+                    //   emp_id: req.body.empId,
+                    //   // name: req.body.name,
+                    //    factory_name: req.body.factoryName,
+                    //    date: date,
+                    //    is_office_work: req.body.isOfficeWork,
+                    //    punch_in: finalPunchIn,
+                    //    is_break_time: false
+                    //  })
+                    //    .then(result => {
+                    //      console.log("Attendence info!!");
+                    //      if (result) {
+                    //         res.statusCode = 200;
+                    //         res.send({
+                    //             status: 200,
+                    //             message: 'Employee punch In submitted successfully!',
+                    //       });
+                    //       res.end();
+                    //      }
+                    //    })
+                    //    .catch(err => {
+                    //       console.log(err);
+                    //     //  res.statusCode = 501;
+                    //     //  res.send({
+                    //     //      status: 501,
+                    //     //      message: 'Oops!, Something went wrong with api',
+                    //     //  })
+                    //     //  res.end();
+                    //    });
+     } 
                     console.log('*####*********data', data);
-                    console.log('***###isOfficeWork', req.body.isOfficeWork);
+                    console.log('***###isOfficeWork', req.body.isOfficeWork, finalPunchIn);
                     Attendance.create({
                       emp_id: req.body.empId,
                       // name: req.body.name,
                        factory_name: req.body.factoryName,
                        date: date,
-                       punch_in: punchIn,
+                       punch_in: finalPunchIn,
                        is_office_work: req.body.isOfficeWork,
                        is_break_time: false
                      })
@@ -328,9 +361,13 @@ module.exports = function(app) {
                          })
                          res.end();
                        });
-                  }
+                  
                 
-    } else if(data && !req.body.isOfficeWork && data.punch_out === null) {
+    } 
+
+
+    /////////////
+    else if(data && !req.body.isOfficeWork && data.punch_out === null) {
       res.statusCode = 203;
       res.send({
         status: 203,
