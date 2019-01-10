@@ -1,25 +1,32 @@
 const Attendance = require("../models/attendance");
 const Sequelize = require("sequelize");
+const sequelize = require('../config/db');
 const Op = Sequelize.Op;
 module.exports = function(app) {
  /**
   * Post API which update the employee details.
   */
  app.post("/api/get-attendance-by-period-filter", (req, res, next) => {
-    Attendance.findAll({
-        where: {
-            // date: req.body.date,
-             //factory_name: req.body.factoryName,
-             [Op.and]: [{ 
-                 date: {
-                 [Op.between]: [req.body.fromDate, req.body.toDate]
-             }
-         }, {factory_name: req.body.factoryName}]
+    // Attendance.findAll({
+    //     where: {
+    //         // date: req.body.date,
+    //          //factory_name: req.body.factoryName,
+    //          [Op.and]: [{ 
+    //              date: {
+    //              [Op.between]: [req.body.fromDate, req.body.toDate]
+    //          }
+    //      }, {factory_name: req.body.factoryName}]
             
              
-         },
-            attributes: ['emp_id', 'date', 'punch_in', 'punch_out', 'total_time' ],
-    })
+    //      },
+    //         attributes: ['emp_id', 'date', 'punch_in', 'punch_out', 'total_time' ],
+    // })
+    sequelize.query(`SELECT attendances.emp_id, attendances.date, attendances.punch_in, attendances.punch_out, attendances.is_office_work, attendances.total_time,
+    office_works.id, office_works.attendence_id, office_works.purpose, office_works.comment, office_works.is_accepted
+    FROM
+     attendances
+    LEFT JOIN office_works ON attendances.id = office_works.attendence_id
+    WHERE attendances.date BETWEEN '${req.body.fromDate}' and '${req.body.toDate}' and attendances.factory_name = '${req.body.factoryName}'`, { type: sequelize.QueryTypes.SELECT })
         .then(users => {
           console.log("Employee Info!!!", users);
           if (users && users.length && users.length > 0) {

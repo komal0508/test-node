@@ -9,7 +9,7 @@ module.exports = function(app) {
   */
  app.post("/api/punch-in", (req, res, next) => { 
   const date = moment(new Date()).format("YYYY-MM-DD");
- // const date = moment().add(10, 'month').calendar();
+  //const date = moment().add(5, 'month').calendar();
      const punchIn = moment(new Date()).format("YYYY-MM-DD hh:mm:ss");
          Attendance.findOne({
       where: {
