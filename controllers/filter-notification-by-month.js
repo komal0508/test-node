@@ -8,7 +8,7 @@ module.exports = function(app) {
  /**
   * Post API which update the employee details.
   */
- app.post("/api/get-pending-notification-by-filter", (req, res, next) => {
+ app.post("/api/get-notification-by-month-filter", (req, res, next) => {
     sequelize.query(`SELECT attendances.emp_id, attendances.date, attendances.factory_name, attendances.punch_in, attendances.punch_out, attendances.is_office_work, attendances.total_time,
     office_works.id, office_works.attendence_id, office_works.purpose, office_works.comment, office_works.is_accepted
     FROM
