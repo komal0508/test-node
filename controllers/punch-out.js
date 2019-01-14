@@ -24,7 +24,7 @@ module.exports = function(app) {
              const punchOutDate = moment(punchOut);
              const millisecondsDiff = punchOutDate.diff(punchInDate);
              console.log('millseconds', millisecondsDiff);
-             const totalTimeInHoursAndMinutes = moment.utc(millisecondsDiff).format('HH:mm');
+             const totalTimeInHoursAndMinutes = moment.utc(millisecondsDiff).format('HH:mm:ss');
              console.log('******totalTimeInHoursAndMinutes', totalTimeInHoursAndMinutes)
             if (resp.punch_out === null) {
                Attendance.update({

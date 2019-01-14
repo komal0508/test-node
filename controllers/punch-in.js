@@ -30,7 +30,7 @@ module.exports = function(app) {
             const millisecondsDiff = punchOutDate.diff(punchInDate)
             const newMilliSeconds = millisecondsDiff + 3600000;// for breaktime
             console.log('millseconds', newMilliSeconds);
-            const totalTimeInHoursAndMinutes = moment.utc(newMilliSeconds).format('HH:mm');
+            const totalTimeInHoursAndMinutes = moment.utc(newMilliSeconds).format('HH:mm:ss');
             console.log('******totalTimeInHoursAndMinutes', totalTimeInHoursAndMinutes);
             Attendance.update({
               punch_out: punchIn,

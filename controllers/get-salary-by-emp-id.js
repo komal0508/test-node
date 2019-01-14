@@ -9,7 +9,7 @@ module.exports = function(app) {
   * Post API which update the employee details.
   */
  app.post("/api/get-salary-by-empId", (req, res, next) => {
-    sequelize.query(`SELECT A.emp_id, json_agg(A.punch_out ) as punch_out, json_agg(A.punch_in ) as punch_in,  json_agg(DISTINCT salary ) as salary,json_agg(DISTINCT shift_time ) as shift_time,json_agg(DISTINCT category ) as category,
+    sequelize.query(`SELECT A.emp_id, A.punch_out, A.punch_in,  json_agg(DISTINCT salary ) as salary,json_agg(DISTINCT shift_time ) as shift_time,json_agg(DISTINCT category ) as category,
     json_agg(DISTINCT salary_value ) as salary_value, SUM(time_mill) as total_milliseconds,to_char(date, 'DD') as day_of_month FROM
     public.attendances as A, public.employees as E
      WHERE A.emp_id = '${req.body.empId}'and E.emp_id = '${req.body.empId}' and A.factory_name = '${req.body.factoryName}' and EXTRACT(month FROM date) = ${req.body.month} and EXTRACT(YEAR FROM date) = ${req.body.year} GROUP BY A.emp_id, day_of_month;
@@ -40,8 +40,23 @@ module.exports = function(app) {
 
                  }
                  let punchArray = []
-                 const punchInValue = moment(response[i].punch_in);
-                 const punchOutValue = moment(response[i].punch_out);
+                 let punchArrayOfSameDay = [];
+                 const punchInArray = response[i].punch_in;
+                 const punchOutArray = response[i].punch_out;
+                 for(let i = 0; i < punchInArray.length; i++) {
+                     if(punchInArray[i]){
+                               const value = {
+                         punch_in: punchInArray[i],
+                         punch_out: punchOutArray[i] || punchInArray[i],
+                     }
+                        punchArrayOfSameDay.push(value);
+
+                     }
+
+                 }
+                 console.log(punchArrayOfSameDay, '******ksdk')
+                //  const punchInValue = moment(response[i].punch_in);
+                //  const punchOutValue = moment(response[i].punch_out);
                 
                  
                 let totalSalary =  ((response[i].total_milliseconds / 1000) * oneSecondSalary) + overtimeSalary; // total salary of a employee of one day
@@ -51,13 +66,13 @@ module.exports = function(app) {
                     const newOvertime = employeeDetails.overtimeSeconds + overtimeSeconds;
                     const newOverTimeSalary = employeeDetails.overtimeSalary + overtimeSalary;
                     const newTotalSalary = parseFloat(employeeDetails.totalSalary + totalSalary).toFixed(2);
-                    punchObj = {
-                        punch_in: punchInValue,
-                        punch_out: punchOutValue,
-                    }
+                    // punchObj = {
+                    //     punch_in: punchInValue,
+                    //     punch_out: punchOutValue,
+                    // }
                     const previousArray = employeeDetails.punchArray;
-                    const newPunchArray = previousArray.concat(punchObj)
-                    punchArray.push(newPunchArray);
+                    const newPunchArray = previousArray.concat(punchArrayOfSameDay)
+                    // punchArray.push(newPunchArray);
                 obj = {
                     total_milliseconds: newTimeMilli, 
                     overtimeSeconds: newOvertime,
@@ -67,18 +82,14 @@ module.exports = function(app) {
 
                 }
                 } else { // if employee not exist
-                    punchObj = {
-                        punch_in: punchInValue,
-                        punch_out: punchOutValue,
-                    }
-                    punchArray.push(punchObj);
+                    
                 obj = {
                     total_milliseconds: response[i].total_milliseconds, 
                     overtimeSeconds: overtimeSeconds,
                     overtimeSalary: overtimeSalary,
 
                     totalSalary: parseFloat(totalSalary).toFixed(2),
-                    punchArray: punchArray,
+                    punchArray: punchArrayOfSameDay,
                 }   
             }
              finalSalary[response[i].emp_id] = obj; // put all data into a final salary object
