@@ -3,7 +3,7 @@ const Sequelize = require("sequelize");
 const sequelize = require('../config/db');
 const Op = Sequelize.Op;
 const moment = require('moment');
-
+const helper = require('../helpers/index')
 module.exports = function(app) {
  /**
   * Post API which update the employee details.
@@ -36,45 +36,56 @@ module.exports = function(app) {
                  if(response[i].category[0] === 'fixed'){
                      overtimeSalary = (overtimeSeconds / 3600 ) * parseInt(response[i].salary_value[0]);
                  } else {
-                    overtimeSalary = parseInt(response[i].salary_value[0]) * overtimeSeconds * oneSecondSalary;
+                    overtimeSalary = parseFloat(response[i].salary_value[0]) * overtimeSeconds * oneSecondSalary;
 
                  }
-                let totalSalary =  ((response[i].total_milliseconds / 1000) * oneSecondSalary) + overtimeSalary; // total salary of a employee of one day
+                let totalSalary =  (((response[i].total_milliseconds / 1000) - overtimeSeconds) * oneSecondSalary) + overtimeSalary; // total salary of a employee of one day
                 const employeeDetails = finalSalary[response[i].emp_id]; // check wheather employee is exist in final salary object 
                 if(employeeDetails && employeeDetails !== undefined){ // is exist add data with previous one
-                    const newTimeMilli = parseInt(employeeDetails.total_milliseconds) + parseInt(response[i].total_milliseconds);
+                    const newTimeMilli = (parseInt(employeeDetails.total_seconds) + parseInt(response[i].total_milliseconds) / 1000);
                     const newOvertime = employeeDetails.overtimeSeconds + overtimeSeconds;
                     const newOverTimeSalary = employeeDetails.overtimeSalary + overtimeSalary;
-                    const newTotalSalary = parseFloat(employeeDetails.totalSalary + totalSalary).toFixed(2);
+                    const newTotalSalary = parseFloat(parseInt(employeeDetails.totalSalary) + totalSalary).toFixed(2);
                 obj = {
-                    total_milliseconds: newTimeMilli, 
+                    total_seconds: newTimeMilli, 
                     overtimeSeconds: newOvertime,
-                    overtimeSalary: newOverTimeSalary,
+                    overtimeSalary: parseFloat(newOverTimeSalary).toFixed(2),
                     totalSalary: newTotalSalary,
 
                 }
                 } else { // if employee not exist
                 obj = {
-                    total_milliseconds: response[i].total_milliseconds, 
+                    total_seconds: parseInt(response[i].total_milliseconds) / 1000, 
                     overtimeSeconds: overtimeSeconds,
                     overtimeSalary: overtimeSalary,
                     totalSalary: parseFloat(totalSalary).toFixed(2),
                 }   
             }
              finalSalary[response[i].emp_id] = obj; // put all data into a final salary object
+             const empId = response[i].emp_id;
+             const salary = parseFloat(obj.totalSalary).toFixed(2);
+             const month = req.body.month;
+             const year = req.body.year;
+             helper.saveSalaryOfEmployee(empId, salary, month, year).then((salRes) => {
+                 if(salRes.status === 200){
+                     console.log('salary stored successfully', salRes);
+                 }
+
+             }).catch((err) => {
+                console.log(err, '****err')
+
+             })
                
-                console.log('obj is', obj);
+                
             }   
-        console.log(finalSalary, '***finalSal')         
-          
-            console.log('empArr', empArr);
-            res.statusCode = 200;
-            res.send({
-            status: 200,
-            message: 'Month wise information fetched!!!',
-            data: finalSalary,
-        });
-            res.end();
+        console.log(finalSalary, '***finalSal')  
+        res.statusCode = 200;
+        res.send({
+        status: 200,
+        message: 'Month wise salary information fetched and stored!!!',
+        data: finalSalary,
+    });
+        res.end();                 
 
           
         } else {
