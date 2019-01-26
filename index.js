@@ -1,20 +1,24 @@
 const http = require('http');
 const express = require('express');
+// var cors = require('cors');
 const rMyRoute = express.Router();
 const bodyParser = require('body-parser');
 const cron = require('node-cron');
 const fs = require('fs');
 const app = express();
-const hostname = '127.0.0.1';
+const hostname = '192.168.43.93';
 const port = 3000;
+//const port = 80;
 const db = require('./config/db');
 const config = require('./config/config.js');
 
+// app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use((req, res, next) => {
  res.header('Access-Control-Allow-Origin', '*');
+ res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
  next();
 });
