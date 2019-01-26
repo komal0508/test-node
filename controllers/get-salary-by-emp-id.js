@@ -2,14 +2,14 @@ const Attendance = require("../models/attendance");
 const Sequelize = require("sequelize");
 const sequelize = require('../config/db');
 const Op = Sequelize.Op;
+const helper = require('../helpers/index')
 const moment = require('moment');
-
 module.exports = function(app) {
  /**
   * Post API which update the employee details.
   */
  app.post("/api/get-salary-by-empId", (req, res, next) => {
-    sequelize.query(`SELECT A.emp_id, A.punch_out, A.punch_in,  json_agg(DISTINCT salary ) as salary,json_agg(DISTINCT shift_time ) as shift_time,json_agg(DISTINCT category ) as category,
+    sequelize.query(`SELECT A.emp_id, array_agg(A.is_office_work) as is_office_work, array_agg(A.id) as attendence_id,array_agg(A.punch_out) as punch_in, array_agg(A.punch_in) as punch_out,  json_agg(DISTINCT salary ) as salary,json_agg(DISTINCT shift_time ) as shift_time,json_agg(DISTINCT category ) as category,
     json_agg(DISTINCT salary_value ) as salary_value, SUM(time_mill) as total_milliseconds,to_char(date, 'DD') as day_of_month FROM
     public.attendances as A, public.employees as E
      WHERE A.emp_id = '${req.body.empId}'and E.emp_id = '${req.body.empId}' and A.factory_name = '${req.body.factoryName}' and EXTRACT(month FROM date) = ${req.body.month} and EXTRACT(YEAR FROM date) = ${req.body.year} GROUP BY A.emp_id, day_of_month;
@@ -18,94 +18,38 @@ module.exports = function(app) {
         console.log('Response is !', response);
         let finalSalary = {};
         if(response && response.length && response.length > 0) {
-            let obj = {};
-            let empArr = [];
-            let finalSalary = {};
-            for(let i = 0; i < response.length; i++) {
-                const shiftTimeMilli = parseInt(response[i].shift_time[0]) * 3600000; // convert shift time into milliseconds
-                let overtimeSeconds =  (parseInt(response[i].total_milliseconds) - shiftTimeMilli) / 1000; // total overtime seconds of a day
-                 if(overtimeSeconds > 0 ){ //if overtime is there or not  
-                    overtimeSeconds = overtimeSeconds
-                } else {
-                    overtimeSeconds = 0
-                }
-                const noOfDaysInMonth = moment(`${req.body.year}-${req.body.month}`, "YYYY-MM").daysInMonth(); // find days in that month
-                const oneSecondSalary = response[i].salary[0] / (noOfDaysInMonth * response[i].shift_time[0] * 3600); // one second salary of a employee
-               
-                 let overtimeSalary = 0;
-                 if(response[i].category[0] === 'fixed'){
-                     overtimeSalary = (overtimeSeconds / 3600 ) * parseInt(response[i].salary_value[0]);
-                 } else {
-                    overtimeSalary = parseInt(response[i].salary_value[0]) * overtimeSeconds * oneSecondSalary;
+            helper.calculateSalary(response, req).then((resSalary, err) => {
+                if(resSalary){
+                    console.log(resSalary, '*****************resSalary')
 
-                 }
-                 let punchArray = []
-                 let punchArrayOfSameDay = [];
-                 const punchInArray = response[i].punch_in;
-                 const punchOutArray = response[i].punch_out;
-                 for(let i = 0; i < punchInArray.length; i++) {
-                     if(punchInArray[i]){
-                               const value = {
-                         punch_in: punchInArray[i],
-                         punch_out: punchOutArray[i] || punchInArray[i],
-                     }
-                        punchArrayOfSameDay.push(value);
 
-                     }
-
-                 }
-                 console.log(punchArrayOfSameDay, '******ksdk')
-                //  const punchInValue = moment(response[i].punch_in);
-                //  const punchOutValue = moment(response[i].punch_out);
-                
-                 
-                let totalSalary =  ((response[i].total_milliseconds / 1000) * oneSecondSalary) + overtimeSalary; // total salary of a employee of one day
-                const employeeDetails = finalSalary[response[i].emp_id]; // check wheather employee is exist in final salary object 
-                if(employeeDetails && employeeDetails !== undefined){ // is exist add data with previous one
-                    const newTimeMilli = parseInt(employeeDetails.total_milliseconds) + parseInt(response[i].total_milliseconds);
-                    const newOvertime = employeeDetails.overtimeSeconds + overtimeSeconds;
-                    const newOverTimeSalary = employeeDetails.overtimeSalary + overtimeSalary;
-                    const newTotalSalary = parseFloat(employeeDetails.totalSalary + totalSalary).toFixed(2);
-                    // punchObj = {
-                    //     punch_in: punchInValue,
-                    //     punch_out: punchOutValue,
-                    // }
-                    const previousArray = employeeDetails.punchArray;
-                    const newPunchArray = previousArray.concat(punchArrayOfSameDay)
-                    // punchArray.push(newPunchArray);
-                obj = {
-                    total_milliseconds: newTimeMilli, 
-                    overtimeSeconds: newOvertime,
-                    overtimeSalary: newOverTimeSalary,
-                    totalSalary: newTotalSalary,
-                    punchArray: newPunchArray,
+                  const empId = Object.keys(resSalary);
+                  console.log(empId, '*********empId')
+                  const month = req.body.month;
+                  const year = req.body.year;
+                    helper.saveEmpSalDetails(empId[0], month, year, resSalary).then((salRes) => {
+                        console.log(salRes, '*****************salRes')
+                        if(salRes.status === 200){
+                            res.statusCode = 200;
+                            res.send({
+                                status: 201,
+                                message: 'Employee salary info  fetched!!!',
+                                data: resSalary,
+                          });
+                          res.end();
+                        }
+       
+                    }).catch((err) => {
+                       console.log(err, '****err')
+       
+                    })
+                   
 
                 }
-                } else { // if employee not exist
-                    
-                obj = {
-                    total_milliseconds: response[i].total_milliseconds, 
-                    overtimeSeconds: overtimeSeconds,
-                    overtimeSalary: overtimeSalary,
-
-                    totalSalary: parseFloat(totalSalary).toFixed(2),
-                    punchArray: punchArrayOfSameDay,
-                }   
-            }
-             finalSalary[response[i].emp_id] = obj; // put all data into a final salary object
                
-                console.log('obj is', obj);
-            }   
-        console.log(finalSalary, '***finalSal')         
-          
-            console.log('empArr', empArr);
-            res.statusCode = 200;
-            res.send({
-            status: 200,
-            message: 'Month wise information fetched!!!',
-            data: finalSalary,
-        });
-            res.end();
+
+            })
+           
 
           
         } else {
